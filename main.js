@@ -97,7 +97,7 @@ function loadModel() {
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
     loader.setDRACOLoader(dracoLoader);
 
-    const modelUrl = 'https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/model.glb';
+    const modelUrl = 'https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/modelCompressed.glb';
 
     loader.load(
       modelUrl,
