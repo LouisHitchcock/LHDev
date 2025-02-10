@@ -5,12 +5,46 @@ import { RGBELoader } from 'https://esm.sh/three@0.160.0/examples/jsm/loaders/RG
 import { DRACOLoader } from 'https://esm.sh/three@0.160.0/examples/jsm/loaders/DRACOLoader.js';
 
 let scene, camera, renderer, controls, hdrEnvTexture, model, ground;
+let savedCameraStates = [];
+let modelLoaded = false;
+let hdriLoaded = false;
+let debugMenuVisible = false;
 
-// Reference existing loading screen from HTML
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
+const debugMenu = document.getElementById('debug-menu');
+const printModelRotationCheckbox = document.getElementById('printModelRotation');
+const printCameraPositionCheckbox = document.getElementById('printCameraPosition');
+const modelRotationSlider = document.getElementById('modelRotation');
+const defaultModelRotation = 147;
+
+modelRotationSlider.value = defaultModelRotation;
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'l' || event.key === 'L') {
+    controls.enabled = false;
+    camera.position.set(0.4652825026116795, 1.6808014388855963, -0.666160593402512);
+    camera.rotation.set(-2.9797559502866244, 0.5966921693795699, 3.050108851901814);
+    controls.target.set(0, 1.5, 0);
+    camera.updateProjectionMatrix();
+    controls.update();
+    setTimeout(() => { controls.enabled = true; }, 500);
+    console.log("Camera position set to predefined location.");
+  }
+  if (event.key === 's' || event.key === 'S') {
+    saveCameraState();
+  }
+  if (event.key === 'r' || event.key === 'R') {
+    restoreLastCameraState();
+  }
+  if (event.key === 'p' || event.key === 'P') {
+    debugMenuVisible = !debugMenuVisible;
+    debugMenu.style.display = debugMenuVisible ? 'block' : 'none';
+  }
+});
 
 init();
+loadHDRI();
 loadModel();
 animate();
 
@@ -19,31 +53,29 @@ function init() {
   scene.background = new THREE.Color(0xbababa);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   document.body.appendChild(renderer.domElement);
 
   camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(2, 2, 4);
-
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.minDistance = 1;
-  controls.maxDistance = 10;
 
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(5, 5, 5);
-  light.castShadow = true;
-  scene.add(light);
+  camera.position.set(4.766378949970454, 3.401219859066642, -1.9678530779199426);
+  camera.rotation.set(-2.234360704827261, 0.9861125311950485, 2.323988061728519);
+  controls.target.set(0, 1.5, 0);
+  camera.updateProjectionMatrix();
+  controls.update();
+  setTimeout(() => { controls.enabled = true; }, 500);
+  console.log("Camera position set to initial predefined location.");
 
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-  scene.add(ambientLight);
+  window.addEventListener('resize', handleResize);
+}
 
+function loadHDRI() {
+  loadingText.innerText = "Loading HDRI...";
   const pmremGenerator = new THREE.PMREMGenerator(renderer);
   pmremGenerator.compileEquirectangularShader();
 
@@ -52,85 +84,47 @@ function init() {
     .load('environment.hdr', function (texture) {
       hdrEnvTexture = pmremGenerator.fromEquirectangular(texture).texture;
       scene.environment = hdrEnvTexture;
-
-      ground = new THREE.Mesh(new THREE.PlaneGeometry(50, 50), new THREE.ShadowMaterial({ opacity: 0.5 }));
-      ground.rotation.x = -Math.PI / 2;
-      ground.receiveShadow = true;
-      scene.add(ground);
-
+      hdriLoaded = true;
+      checkLoadingComplete();
       pmremGenerator.dispose();
     });
-
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      console.log("Resize event handled");
-    }, 200);
-  });
 }
 
 function loadModel() {
-  const loadingManager = new THREE.LoadingManager();
+  loadingText.innerText = "Loading Model...";
+  const loader = new GLTFLoader();
+  const dracoLoader = new DRACOLoader();
+  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+  loader.setDRACOLoader(dracoLoader);
 
-  loadingManager.onProgress = (url, loaded, total) => {
-    if (total > 0) {
-      const progress = Math.floor((loaded / total) * 100);
-      loadingText.innerText = `Loading... ${progress}%`;
-    }
-  };
+  loader.load('https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/modelCompressed.glb', function (gltf) {
+    model = gltf.scene;
+    scene.add(model);
+    model.rotation.y = THREE.MathUtils.degToRad(defaultModelRotation);
+    modelLoaded = true;
+    checkLoadingComplete();
+  });
+}
 
-  loadingManager.onLoad = () => {
-    console.log('Model successfully loaded');
+function checkLoadingComplete() {
+  if (modelLoaded && hdriLoaded) {
+    console.log("All assets loaded successfully");
     loadingScreen.style.opacity = '0';
     setTimeout(() => {
       loadingScreen.style.display = 'none';
-    }, 500); // Allow fade-out animation
-  };
-
-  try {
-    const loader = new GLTFLoader(loadingManager);
-    const dracoLoader = new DRACOLoader();
-    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-    loader.setDRACOLoader(dracoLoader);
-
-    const modelUrl = 'https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/modelCompressed.glb';
-
-    loader.load(
-      modelUrl,
-      function (gltf) {
-        model = gltf.scene;
-        model.traverse((child) => {
-          if (child.isMesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-          }
-        });
-
-        model.rotation.y = THREE.MathUtils.degToRad(82);
-        scene.add(model);
-      },
-      undefined,
-      (error) => {
-        console.error('An error occurred while loading the model:', error);
-        alert("Failed to load the model. Please try again later.");
-      }
-    );
-  } catch (error) {
-    console.error('Critical error:', error);
-    alert("An unexpected error occurred. Please refresh the page.");
+    }, 500);
   }
 }
 
+function handleResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  console.log("Resize event handled");
+}
+
 function animate() {
-  try {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-  } catch (error) {
-    console.error('Error during rendering:', error);
-  }
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
 }
