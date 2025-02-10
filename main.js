@@ -61,10 +61,15 @@ function init() {
       pmremGenerator.dispose();
     });
 
+  let resizeTimeout;
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      console.log("Resize event handled");
+    }, 200);
   });
 }
 
@@ -86,29 +91,46 @@ function loadModel() {
     }, 500); // Allow fade-out animation
   };
 
-  const loader = new GLTFLoader(loadingManager);
-  const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-  loader.setDRACOLoader(dracoLoader);
+  try {
+    const loader = new GLTFLoader(loadingManager);
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+    loader.setDRACOLoader(dracoLoader);
 
-  const modelUrl = 'https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/model.glb';
+    const modelUrl = 'https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/model.glb';
 
-  loader.load(modelUrl, function (gltf) {
-    model = gltf.scene;
-    model.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
+    loader.load(
+      modelUrl,
+      function (gltf) {
+        model = gltf.scene;
+        model.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+
+        model.rotation.y = THREE.MathUtils.degToRad(82);
+        scene.add(model);
+      },
+      undefined,
+      (error) => {
+        console.error('An error occurred while loading the model:', error);
+        alert("Failed to load the model. Please try again later.");
       }
-    });
-
-    model.rotation.y = THREE.MathUtils.degToRad(82);
-    scene.add(model);
-  });
+    );
+  } catch (error) {
+    console.error('Critical error:', error);
+    alert("An unexpected error occurred. Please refresh the page.");
+  }
 }
 
 function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
+  try {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  } catch (error) {
+    console.error('Error during rendering:', error);
+  }
 }
