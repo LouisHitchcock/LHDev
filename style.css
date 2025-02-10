@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+#controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+#controls.hidden {
+  display: none;
+}
+
+label {
+  display: block;
+  margin: 5px 0;
+}
+
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  color: white;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: 'opacity 0.5s ease-out';
+  opacity: 1;
+}
