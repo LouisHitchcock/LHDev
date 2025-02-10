@@ -1,0 +1,18 @@
+{
+  "name": "lhphotos-threejs",
+  "version": "1.0.0",
+  "description": "Three.js project using Vite for development",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.152.2"
+  },
+  "devDependencies": {
+    "vite": "^4.1.0"
+  }
+}
