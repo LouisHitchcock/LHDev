@@ -96,8 +96,10 @@ function loadModel() {
   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/'); // Path to Draco decoders
   loader.setDRACOLoader(dracoLoader);
 
-  loader.setPath('./scene/');
-  loader.load('model.glb', function (gltf) {
+  // Load the model from Cloudflare R2
+  const modelUrl = 'https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/model.glb';
+  
+  loader.load(modelUrl, function (gltf) {
     model = gltf.scene;
     model.traverse((child) => {
       if (child.isMesh) {
