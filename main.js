@@ -2,21 +2,15 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 let scene, camera, renderer, controls, hdrEnvTexture, model, ground;
-
-// Debug variable: Set to true to display sliders, false to hide them
-const Debug = true;
 
 init();
 loadModel();
 animate();
 
 function init() {
-  // Toggle slider visibility based on Debug
-  const controlsDiv = document.getElementById('controls');
-  controlsDiv.classList.toggle('hidden', !Debug);
-
   // Scene
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xbababa); // Solid grey background
@@ -79,7 +73,7 @@ function init() {
         groundMaterial
       );
       ground.rotation.x = -Math.PI / 2; // Make it horizontal
-      ground.position.y = 0; // Default position (set to 0)
+      ground.position.y = 0; // Default position
       ground.receiveShadow = true;
       scene.add(ground);
 
@@ -92,37 +86,21 @@ function init() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
-
-  // Sliders
-  const hdriRotationSlider = document.getElementById('hdriRotation');
-  const modelRotationSlider = document.getElementById('modelRotation');
-  const groundHeightSlider = document.getElementById('groundHeight');
-
-  hdriRotationSlider.addEventListener('input', updateHdriRotation);
-  modelRotationSlider.addEventListener('input', updateModelRotation);
-  groundHeightSlider.addEventListener('input', updateGroundHeight);
-
-  // Set default model rotation and ground height
-  modelRotationSlider.value = 82;
-  groundHeightSlider.value = 0;
 }
 
 function loadModel() {
   const loader = new GLTFLoader();
+
+  // Add DracoLoader to handle compressed files
+  const dracoLoader = new DRACOLoader();
+  dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/'); // Path to Draco decoders
+  loader.setDRACOLoader(dracoLoader);
+
   loader.setPath('./scene/');
   loader.load('model.glb', function (gltf) {
     model = gltf.scene;
     model.traverse((child) => {
       if (child.isMesh) {
-        // Use MeshStandardMaterial to support reflectivity
-        if (!(child.material instanceof THREE.MeshStandardMaterial)) {
-          child.material = new THREE.MeshStandardMaterial({
-            color: child.material.color,
-            roughness: 0.5,
-            metalness: 0.5,
-            envMap: hdrEnvTexture,
-          });
-        }
         child.castShadow = true; // Enable shadows for the model
         child.receiveShadow = true; // Allow the model to receive shadows
       }
@@ -134,30 +112,6 @@ function loadModel() {
 
     scene.add(model);
   });
-}
-
-function updateHdriRotation() {
-  const rotation = THREE.MathUtils.degToRad(document.getElementById('hdriRotation').value);
-  if (hdrEnvTexture) {
-    hdrEnvTexture.matrixAutoUpdate = false;
-    hdrEnvTexture.matrix.makeRotationY(rotation);
-  }
-}
-
-function updateModelRotation() {
-  const rotation = THREE.MathUtils.degToRad(document.getElementById('modelRotation').value);
-  if (model) {
-    model.rotation.y = rotation;
-    console.log(`Model Rotation (Y): ${THREE.MathUtils.radToDeg(rotation)}°`);
-  }
-}
-
-function updateGroundHeight() {
-  const height = parseFloat(document.getElementById('groundHeight').value);
-  if (ground) {
-    ground.position.y = height;
-    console.log(`Ground Height: ${height}`);
-  }
 }
 
 function animate() {
