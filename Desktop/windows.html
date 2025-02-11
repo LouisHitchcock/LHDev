@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 95 Portfolio</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+    <!-- Desktop Icons -->
+    <div id="desktop">
+    
+        <div class="icon" onclick="openWindow('LouisHitchPhotos Portfolio', './icons/ProjectIcons/LHPhotosIcon.png')">
+            <img src="./icons/ProjectIcons/LHPhotosIcon.png" class="icon-image" alt="LH Photos">
+            <span>LouisHitchPhotos Portfolio</span>
+        </div>
+  
+        <div class="icon" onclick="openWindow('Important Documents', './icons/ProjectIcons/ImportantIcon.png')">
+            <img src="./icons/ProjectIcons/ImportantIcon.png" class="icon-image" alt="Important">
+            <span>Important Documents</span>
+        </div>
+
+        <div class="icon" onclick="openWindow('Louis Development Portfolio', './icons/ProjectIcons/dev.png')">
+            <img src="./icons/ProjectIcons/dev.png" class="icon-image" alt="LH Photos">
+            <span>Louis Development Portfolio</span>
+        </div>
+
+        <div class="icon" onclick="openWindow('ESP Espresso', './icons/ProjectIcons/ESPEspressoIcon.png')">
+            <img src="./icons/ProjectIcons/ESPEspressoIcon.png" class="icon-image" alt="ESP Espresso">
+            <span>ESP Espresso</span>
+        </div>
+
+        <div class="icon" onclick="openWindow('Cygnet Bed Tracker', './icons/ProjectIcons/BedIcon.png')">
+            <img src="./icons/ProjectIcons/BedIcon.png" class="icon-image" alt="Bed Project">
+            <span>Cygnet Bed Tracker</span>
+        </div>
+
+        <div class="icon" onclick="openWindow('Gosling Electrical', './icons/ProjectIcons/GoslingLogo.png')">
+            <img src="./icons/ProjectIcons/GoslingLogo.png" class="icon-image" alt="Gosling Logo">
+            <span>Gosling Electrical</span>
+        </div>
+
+        <div class="icon" onclick="openWindow('26A1', './icons/ProjectIcons/26A1Icon.png')">
+            <img src="./icons/ProjectIcons/26A1Icon.png" class="icon-image" alt="26A1 Project">
+            <span>26A1</span>
+        </div>
+
+        <div class="icon"></div> <!-- Empty slot for spacing -->
+
+        <div class="icon" onclick="openWindow('FPV Louis', './icons/ProjectIcons/FPVLouisIcon.png')">
+            <img src="./icons/ProjectIcons/FPVLouisIcon.png" class="icon-image" alt="FPV Louis">
+            <span>FPV Louis</span>
+        </div>
+
+        <div class="icon"></div> <!-- Empty slot for spacing -->
+    </div>
+
+    <!-- Windows Container -->
+    <div id="windows-container"></div>
+
+    <!-- Taskbar -->
+    <div id="taskbar">
+        <div id="start-button">
+            <img src="./icons/start.png" alt="Start">
+            Start
+        </div>
+        <div id="taskbar-apps"></div>
+        <div id="system-tray">
+            <img src="./icons/bluetooth.png" class="tray-icon" alt="Bluetooth">
+            <img src="./icons/volume-icon.png" class="tray-icon" alt="Volume">
+            <img src="./icons/battery-icon.png" class="tray-icon" alt="Battery">
+        </div>
+        <div id="clock">12:30 AM</div>
+    </div>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>

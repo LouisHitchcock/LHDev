@@ -1,0 +1,305 @@
+/* General Page Styles */
+body {
+    margin: 0;
+    background-color: #008080;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    height: 100vh; /* Ensure body covers full viewport height */
+    overflow: hidden; /* Prevent scrolling */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Desktop Layout - Strict Grid for Large Screens */
+#desktop {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(80px, 120px)); /* Exactly 2 columns */
+    grid-template-rows: repeat(5, 1fr); /* 5 rows */
+    gap: 3vh; /* Adjust spacing between icons */
+    padding: 3vh;
+    align-items: center;
+    justify-content: start; /* Align icons to the left */
+    height: calc(100vh - 50px); /* Adjust grid to fit within viewport */
+    max-height: 80%;
+}
+
+/* Responsive Grid for Small Screens (Height < 600px) */
+@media (max-height: 600px) {
+    #desktop {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Flexible columns */
+        grid-template-rows: auto;
+        gap: 2vh;
+        justify-content: center; /* Center icons when flexible */
+        padding: 2vh;
+    }
+}
+
+/* Desktop Icons */
+.icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    text-align: center;
+    width: 100px;
+}
+
+.icon-image {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 5px;
+}
+
+.icon span {
+    font-size: 12px;
+    color: white;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    text-align: center;
+}
+
+/* Taskbar */
+#taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background-color: #C0C0C0;
+    display: flex;
+    align-items: center;
+    border-top: 2px solid #808080;
+    border-bottom: 2px solid white;
+    padding: 2px;
+}
+
+/* Start Button */
+#start-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #C0C0C0;
+    border: 2px solid #808080;
+    padding: 3px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    font-family: 'MS Sans Serif', sans-serif;
+    width: 70px;
+    height: 24px;
+}
+
+#start-button img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* Opened Applications */
+#taskbar-apps {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    padding-left: 5px;
+}
+
+.taskbar-app {
+    background-color: #C0C0C0;
+    border: 2px solid #808080;
+    padding: 4px 8px;
+    margin-right: 5px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 150px;
+    height: 24px;
+}
+
+.taskbar-app img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* System Tray */
+#system-tray {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    padding-right: 10px;
+}
+
+.tray-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* Clock */
+#clock {
+    font-size: 12px;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    padding: 2px 6px;
+    background-color: #C0C0C0;
+    border: 2px solid #808080;
+    width: 60px;
+    text-align: center;
+    margin-right: 20px;
+}/* Windows 95 Window */
+/* Window Container */
+/* Window Title Bar */
+.window-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #000080;
+    color: white;
+    padding: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: move;
+}
+
+/* Window */
+.window {
+    position: absolute;
+    background: #C0C0C0;
+    border: 2px solid #808080;
+    box-shadow: 3px 3px 0 #808080, -1px -1px 0 #ffffff;
+    display: none;
+    width: 70vw;
+    height: 70vw;
+    max-width: 70vh;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Title Bar */
+.window-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000080;
+    color: white;
+    padding: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: move;
+    user-select: none;
+}
+
+/* Title Left (Icon + Title) */
+.title-left {
+    display: flex;
+    align-items: center;
+}
+
+/* Window Icon */
+.window-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+/* Window Buttons */
+.window-buttons {
+    display: flex;
+    gap: 3px;
+}
+
+.window-buttons button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    font-weight: bold;
+    background: #C0C0C0;
+    color: black;
+    cursor: pointer;
+    box-shadow: inset -2px -2px #808080, inset 2px 2px #ffffff;
+}
+
+.window-buttons button:hover {
+    background: #A0A0A0;
+}
+
+/* Window Menu Bar */
+.window-menu {
+    background: #E0E0E0;
+    padding: 4px;
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    border-bottom: 2px solid #808080;
+}
+
+
+/* Window Title Bar */
+.window-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #000080;
+    color: white;
+    padding: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: move;
+    user-select: none;
+}
+
+/* Window */
+.window {
+    position: absolute;
+    background: #C0C0C0;
+    border: 2px solid #808080;
+    box-shadow: 3px 3px 0 #808080, -1px -1px 0 #ffffff;
+    display: none;
+    width: 70vw;
+    height: 70vw;
+    max-width: 70vh;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Window Content */
+.window-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    background: white;
+    padding: 10px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+
+
+
+/* Taskbar App Button */
+.taskbar-app {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border: 2px solid #808080;
+    background: #C0C0C0;
+    cursor: pointer;
+    width: 150px;
+}
+
+.taskbar-app img {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+}
+
+
+.scrollable {
+    overflow-y: auto;
+}
