@@ -62,6 +62,8 @@ function init() {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
 
+  // 🔹 Restrict camera from moving below the model
+  controls.maxPolarAngle = Math.PI / 1.7; // Prevents looking directly below
   camera.position.set(4.766, 3.401, -1.967);
   camera.rotation.set(-2.234, 0.986, 2.323);
   controls.target.set(0, 1.5, 0);
