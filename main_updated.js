@@ -22,14 +22,11 @@ modelRotationSlider.value = defaultModelRotation;
 
 document.addEventListener('keydown', (event) => {
   if (event.key === 'l' || event.key === 'L') {
-    controls.enabled = false;
-    camera.position.set(0.4652825026116795, 1.6808014388855963, -0.666160593402512);
-    camera.rotation.set(-2.9797559502866244, 0.5966921693795699, 3.050108851901814);
-    controls.target.set(0, 1.5, 0);
-    camera.updateProjectionMatrix();
-    controls.update();
-    setTimeout(() => { controls.enabled = true; }, 500);
-    console.log("Camera position set to predefined location.");
+    animateCameraTo(
+      { x: 0.4652825026116795, y: 1.6808014388855963, z: -0.666160593402512 },
+      { pitch: -2.9797559502866244, yaw: 0.5966921693795699, roll: 3.050108851901814 },
+      2000
+    );
   }
   if (event.key === 's' || event.key === 'S') {
     saveCameraState();
@@ -43,14 +40,9 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-init();
-loadHDRI();
-loadModel();
-animate();
-
 function init() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xbababa); // ✅ Retains the gray background
+  scene.background = new THREE.Color(0xbababa);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -73,35 +65,44 @@ function init() {
 
   window.addEventListener('resize', handleResize);
 
-  // Directional light casting shadows (higher contrast)
-  const light = new THREE.DirectionalLight(0xffffff, 1.2); // Slightly stronger light
-light.position.set(12, 9, -3); // Moves light slightly forward on the Z-axis
+  loadHDRI();
+  loadModel();
+  animate();
+}
 
-  light.castShadow = true;
-  light.shadow.mapSize.width = 4096; // Higher resolution for sharper shadows
-  light.shadow.mapSize.height = 4096;
-  light.shadow.radius = 2.5; // Soft yet defined shadow edges
+function animateCameraTo(targetPosition, targetRotation, duration) {
+  const startPosition = { ...camera.position };
+  const startRotation = { x: camera.rotation.x, y: camera.rotation.y, z: camera.rotation.z };
+  let startTime = null;
 
-  // 🔹 Fix for shadow contrast: Adjust bias to prevent washed-out shadows
-  light.shadow.bias = -0.002;
+  function animationStep(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = timestamp - startTime;
+    const t = Math.min(elapsed / duration, 1);
+    const easeInOut = t * t * (3 - 2 * t);
 
-  light.shadow.camera.near = 0.5;
-  light.shadow.camera.far = 50;
-  scene.add(light);
-
-  // Ground plane that receives shadows
-  if (!ground) {
-    ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(50, 50),
-      new THREE.ShadowMaterial({ opacity: 0.7 }) // 🔹 Shadows now darker & more defined
+    camera.position.set(
+      startPosition.x + (targetPosition.x - startPosition.x) * easeInOut,
+      startPosition.y + (targetPosition.y - startPosition.y) * easeInOut,
+      startPosition.z + (targetPosition.z - startPosition.z) * easeInOut
     );
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = 0;
-    ground.receiveShadow = true;
-    scene.add(ground);
-  } else {
-    ground.receiveShadow = true;
+    camera.rotation.set(
+      startRotation.x + (targetRotation.pitch - startRotation.x) * easeInOut,
+      startRotation.y + (targetRotation.yaw - startRotation.y) * easeInOut,
+      startRotation.z + (targetRotation.roll - startRotation.z) * easeInOut
+    );
+
+    controls.target.set(0, 1.5, 0);
+    camera.updateProjectionMatrix();
+    controls.update();
+
+    if (t < 1) {
+      requestAnimationFrame(animationStep);
+    } else {
+      console.log("Camera animation complete.");
+    }
   }
+  requestAnimationFrame(animationStep);
 }
 
 function loadHDRI() {
@@ -113,7 +114,7 @@ function loadHDRI() {
     .setPath('./scene/')
     .load('environment.hdr', function (texture) {
       hdrEnvTexture = pmremGenerator.fromEquirectangular(texture).texture;
-      scene.environment = hdrEnvTexture; // ✅ Retains HDRI reflections
+      scene.environment = hdrEnvTexture;
       hdriLoaded = true;
       checkLoadingComplete();
       pmremGenerator.dispose();
@@ -127,17 +128,8 @@ function loadModel() {
   dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
   loader.setDRACOLoader(dracoLoader);
 
-  loader.load('https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/modelCompressed.glb', function (gltf) {
+  loader.load('https://pub-30df16020b794c51aa9c0ebb9d25a52f.r2.dev/simplify-0-75.glb', function (gltf) {
     model = gltf.scene;
-
-    // Ensure model casts and receives shadows
-    model.traverse((child) => {
-      if (child.isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
-    });
-
     scene.add(model);
     model.rotation.y = THREE.MathUtils.degToRad(defaultModelRotation);
     modelLoaded = true;
@@ -162,8 +154,59 @@ function handleResize() {
   console.log("Resize event handled");
 }
 
+function saveCameraState() {
+  const cameraState = {
+    position: { x: camera.position.x, y: camera.position.y, z: camera.position.z },
+    rotation: { pitch: camera.rotation.x, yaw: camera.rotation.y, roll: camera.rotation.z }
+  };
+  savedCameraStates.push(cameraState);
+  console.log("Camera state saved:", cameraState);
+}
+
+function restoreLastCameraState() {
+  if (savedCameraStates.length === 0) {
+    console.log("No saved camera states.");
+    return;
+  }
+  const lastState = savedCameraStates[savedCameraStates.length - 1];
+  animateCameraTo(lastState.position, lastState.rotation, 2000);
+  console.log("Camera restored to:", lastState);
+}
+
+printCameraPositionCheckbox.addEventListener('change', function(event) {
+  if (event.target.checked) {
+    console.log("Camera Position Logging Enabled");
+    setInterval(() => {
+      console.log(`Camera Position: { x: ${camera.position.x.toFixed(3)}, y: ${camera.position.y.toFixed(3)}, z: ${camera.position.z.toFixed(3)} }`);
+      console.log(`Camera Rotation: { pitch: ${camera.rotation.x.toFixed(3)}, yaw: ${camera.rotation.y.toFixed(3)}, roll: ${camera.rotation.z.toFixed(3)} }`);
+    }, 1000);
+  }
+});
+
+
+
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 }
+
+init();
+
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 10, 5);
+light.castShadow = true;
+light.shadow.mapSize.width = 2048;
+light.shadow.mapSize.height = 2048;
+light.shadow.camera.near = 0.5;
+light.shadow.camera.far = 50;
+scene.add(light);
+
+const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(50, 50),
+    new THREE.ShadowMaterial({ opacity: 0.5 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = 0;
+ground.receiveShadow = true;
+scene.add(ground);
