@@ -25,6 +25,7 @@ function updateClock() {
 
 const windowContents = {
 
+
     "LouisHitchPhotos Portfolio": `
         <p>Welcome to my photography portfolio!</p>
         <img src="./images/LHPhotoScreenshot.png" alt="LouisHitchPhotos screenshot" style="width:100%; margin-bottom: 1rem;" />
@@ -60,9 +61,10 @@ const windowContents = {
 
     "ESP Espresso": `
         <p>ESP32-Powered E61 Espresso Machine ☕</p>
-        <img src="./images/ESPPCB.PNG" alt="ESP32 espresso machine photo or PCB render" style="width:100%; margin-bottom: 1rem;" />
         <p>This project modernises a traditional E61-style espresso machine using embedded IoT technology. Built around an ESP32-S3 microcontroller, it adds volumetric flow control, dual PID-regulated boilers, status indicators, and interactive manual and web-based interfaces.</p>
+        <img src="./images/ESPInterface.jpg" alt="ESP32 espresso machine photo or PCB render" style="width:100%; margin-bottom: 1rem;" />
         <p>The system supports manual levers for barista-style control as well as fully programmable brew profiles through a custom-designed web UI. A bespoke PCB routes sensor inputs, solenoid control, and power regulation through a unified plug-and-play system compatible with legacy espresso machines.</p>
+        <img src="./images/ESPPCB.PNG" alt="ESP32 espresso machine photo or PCB render" style="width:100%; margin-bottom: 1rem;" />
         <p>It’s a blend of engineering precision, user-centered design, and coffee nerdery—tailored for consistent, high-quality brewing with detailed real-time feedback.</p>
         <div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 4px;">
             <iframe src="https://github.com/LouisHitchcock/E61-ESP32-Espresso" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
